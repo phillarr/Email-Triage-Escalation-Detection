@@ -1,6 +1,6 @@
 # Email Triage & Escalation Detection
 
-A [Make.com](https://www.make.com) scenario that reads incoming support emails, uses an AI model (Mistral) to decide their real priority and escalation risk, logs every email in Notion, and alerts your team on Slack when an email is urgent.
+A scenario that reads incoming support emails, uses an AI model (Mistral) to decide their real priority and escalation risk, logs every email in Notion, and alerts your team on Slack when an email is urgent.
 
 ## The scenario
 
