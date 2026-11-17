@@ -4,6 +4,8 @@ A scenario that reads incoming support emails, uses an AI model (Mistral) to dec
 
 ## The scenario
 
+![Make.com scenario: Gmail → Mistral AI → JSON → Router → Slack (urgent) and Notion (all emails)](images/make-scenario.png)
+
 ```
 Gmail (new email) ──► Mistral AI (triage as JSON) ──► Parse JSON ──► Router
                                                                       ├─► Urgent only ──► Slack (alert)
