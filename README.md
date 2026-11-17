@@ -2,6 +2,10 @@
 
 A scenario that reads incoming support emails, uses an AI model (Mistral) to decide their real priority and escalation risk, logs every email in Notion, and alerts your team on Slack when an email is urgent.
 
+▶️ **Video tutorial:** [watch on YouTube](https://www.youtube.com/watch?v=KgRLsqSFJVY)
+
+[![Watch the tutorial on YouTube](https://img.youtube.com/vi/KgRLsqSFJVY/hqdefault.jpg)](https://www.youtube.com/watch?v=KgRLsqSFJVY)
+
 ## The scenario
 
 ![Make.com scenario: Gmail → Mistral AI → JSON → Router → Slack (urgent) and Notion (all emails)](images/make-scenario.png)
