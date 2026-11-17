@@ -1,0 +1,2279 @@
+{
+    "name": "Email Triage & Escalation Detection",
+    "flow": [
+        {
+            "id": 2,
+            "module": "google-email:triggerWatchNewEmails",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": null,
+                "filterType": "simpleSearch",
+                "format": "full",
+                "folder": "INBOX",
+                "criteria": "all",
+                "markSeen": false,
+                "limit": 10,
+                "from": "",
+                "subject": "",
+                "includeWords": "",
+                "excludeWords": "",
+                "size": {
+                    "criteria": "larger",
+                    "amount": null,
+                    "unit": "M"
+                },
+                "hasAttachment": false
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 150
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Gmail connection",
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google-email"
+                            }
+                        },
+                        "filterType": {
+                            "label": "Simple filter"
+                        },
+                        "format": {
+                            "label": "Full content"
+                        },
+                        "folder": {
+                            "label": "Inbox"
+                        },
+                        "criteria": {
+                            "label": "All messages"
+                        },
+                        "size": {
+                            "nested": {
+                                "criteria": {
+                                    "label": "Greater than"
+                                },
+                                "unit": {
+                                    "label": "MB (megabytes)"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google-email",
+                        "label": "Connection",
+                        "required": true
+                    },
+                    {
+                        "name": "filterType",
+                        "type": "select",
+                        "label": "Filter type",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "simpleSearch",
+                                "gmailSearch"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "format",
+                        "type": "select",
+                        "label": "Content format",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "full",
+                                "raw",
+                                "metadata",
+                                "minimal"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "folder",
+                        "type": "select",
+                        "label": "Folder",
+                        "required": true
+                    },
+                    {
+                        "name": "labelIds",
+                        "type": "select",
+                        "label": "Label"
+                    },
+                    {
+                        "name": "criteria",
+                        "type": "select",
+                        "label": "Criteria",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "all",
+                                "is:read",
+                                "is:unread"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "markSeen",
+                        "type": "boolean",
+                        "label": "Mark email message(s) as read when fetched"
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit",
+                        "validate": {
+                            "max": 500
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "from",
+                        "type": "email",
+                        "label": "Sender email address"
+                    },
+                    {
+                        "name": "subject",
+                        "type": "text",
+                        "label": "Subject"
+                    },
+                    {
+                        "name": "includeWords",
+                        "type": "text",
+                        "label": "Has the words"
+                    },
+                    {
+                        "name": "excludeWords",
+                        "type": "text",
+                        "label": "Doesn't have"
+                    },
+                    {
+                        "name": "size",
+                        "type": "collection",
+                        "label": "Email size",
+                        "spec": [
+                            {
+                                "name": "criteria",
+                                "type": "select",
+                                "label": "Criteria",
+                                "validate": {
+                                    "enum": [
+                                        "larger",
+                                        "smaller"
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "amount",
+                                "type": "integer",
+                                "label": "Size",
+                                "validate": {
+                                    "min": 0
+                                }
+                            },
+                            {
+                                "name": "unit",
+                                "type": "select",
+                                "label": "Size unit",
+                                "validate": {
+                                    "enum": [
+                                        "M",
+                                        "K",
+                                        "bytes"
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "hasAttachment",
+                        "type": "boolean",
+                        "label": "Only emails with attachments/media",
+                        "required": true
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "label": "Message ID"
+                    },
+                    {
+                        "name": "threadId",
+                        "type": "text",
+                        "label": "Thread ID"
+                    },
+                    {
+                        "name": "internalDate",
+                        "type": "date",
+                        "label": "Date"
+                    },
+                    {
+                        "name": "subject",
+                        "type": "text",
+                        "label": "Subject",
+                        "condition": true
+                    },
+                    {
+                        "name": "fromName",
+                        "type": "text",
+                        "label": "From (name)",
+                        "condition": true
+                    },
+                    {
+                        "name": "fromEmail",
+                        "type": "text",
+                        "label": "From (email)",
+                        "condition": true
+                    },
+                    {
+                        "name": "to",
+                        "spec": {
+                            "spec": [
+                                {
+                                    "name": "name",
+                                    "type": "text",
+                                    "label": "Name"
+                                },
+                                {
+                                    "name": "email",
+                                    "type": "text",
+                                    "label": "Email"
+                                }
+                            ],
+                            "type": "collection"
+                        },
+                        "type": "array",
+                        "label": "To",
+                        "condition": true
+                    },
+                    {
+                        "name": "cc",
+                        "spec": [
+                            {
+                                "name": "email",
+                                "type": "email",
+                                "label": "Email"
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "CC",
+                        "condition": true
+                    },
+                    {
+                        "name": "bcc",
+                        "spec": [
+                            {
+                                "name": "email",
+                                "type": "email",
+                                "label": "Email"
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "BCC",
+                        "condition": true
+                    },
+                    {
+                        "name": "snippet",
+                        "type": "text",
+                        "label": "Snippet"
+                    },
+                    {
+                        "name": "fullTextBody",
+                        "type": "text",
+                        "label": "Full text body",
+                        "condition": true
+                    },
+                    {
+                        "name": "htmlBody",
+                        "type": "text",
+                        "label": "HTML body",
+                        "condition": true
+                    },
+                    {
+                        "name": "hasAttachment",
+                        "type": "boolean",
+                        "label": "Has attachment",
+                        "condition": true
+                    },
+                    {
+                        "name": "hasMedia",
+                        "type": "boolean",
+                        "label": "Has media",
+                        "condition": true
+                    },
+                    {
+                        "name": "sysFolders",
+                        "spec": [
+                            {
+                                "name": "id",
+                                "type": "text",
+                                "label": "System folder ID"
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "System folder name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "System folders"
+                    },
+                    {
+                        "name": "categoryFolders",
+                        "spec": [
+                            {
+                                "name": "id",
+                                "type": "text",
+                                "label": "Category folder ID"
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Category folder name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Category folders"
+                    },
+                    {
+                        "name": "userLabelFolders",
+                        "spec": [
+                            {
+                                "name": "id",
+                                "type": "text",
+                                "label": "User label folder ID"
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "User label folder name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "User label folders"
+                    },
+                    {
+                        "name": "labelIds",
+                        "spec": {
+                            "type": "text"
+                        },
+                        "type": "array",
+                        "label": "Message folder IDs"
+                    },
+                    {
+                        "name": "headers",
+                        "spec": [
+                            {
+                                "name": "Delivered-To",
+                                "type": "text",
+                                "label": "Delivered-To"
+                            },
+                            {
+                                "name": "Received",
+                                "type": "text",
+                                "label": "Received"
+                            },
+                            {
+                                "name": "Date",
+                                "type": "text",
+                                "label": "Date (header)"
+                            },
+                            {
+                                "name": "X-Original-Sender",
+                                "type": "text"
+                            },
+                            {
+                                "name": "Reply-To",
+                                "type": "text"
+                            },
+                            {
+                                "name": "Subject",
+                                "type": "text",
+                                "label": "Subject"
+                            },
+                            {
+                                "name": "From",
+                                "type": "text",
+                                "label": "From"
+                            },
+                            {
+                                "name": "To",
+                                "type": "text",
+                                "label": "To"
+                            },
+                            {
+                                "name": "Message-ID",
+                                "type": "text",
+                                "label": "Message-ID"
+                            },
+                            {
+                                "name": "In-Reply-To",
+                                "type": "text",
+                                "label": "In-Reply-To"
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Headers",
+                        "condition": true
+                    },
+                    {
+                        "name": "sizeEstimate",
+                        "type": "number",
+                        "label": "Size estimate"
+                    },
+                    {
+                        "name": "historyId",
+                        "type": "text",
+                        "label": "History ID"
+                    }
+                ],
+                "advanced": true
+            }
+        },
+        {
+            "id": 3,
+            "module": "mistral-ai:createACompletion",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": null
+            },
+            "mapper": {
+                "model": "mistral-medium-latest",
+                "top_p": "1",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are an email triage assistant for a B2B customer support team. You analyze incoming support emails and determine their true priority for the recipient, independent of any importance tag the sender may have set.\r\n\r\nEvaluate the email using these signal categories:\r\n\r\n1. Business risk: cancellation, termination, refund requests, unpaid invoice, mention of a competitor, contract or renewal at stake.\r\n2. Time urgency: explicit deadlines, \"EOD\" or \"EOW\" mentions, same-day meeting or call reminders, contract signature pending.\r\n3. Security: login alerts, access codes, account lockouts affecting the client's ability to work.\r\n4. Escalation pattern: repeated follow-up (\"this is the third time\"), rising frustration or tone, threat of public complaint or legal action.\r\n\r\nIgnore who the sender is or any importance flag set by the email client. Base your evaluation only on the actual content of the message.\r\n\r\nPriority calibration — this distinction matters and should be applied strictly:\r\n\r\n- Use \"Urgent\" only when the email contains an explicit, immediate time constraint: a same-day or next-few-hours deadline (\"EOD\", \"EOW\", \"today\", \"in the next hour\"), an active account lockout blocking work right now, or an explicit ultimatum tied to a specific date (\"if this isn't resolved by [date/time]\"). The time pressure must be stated in the email, not inferred.\r\n- Use \"High\" for real business risk, security incidents, or escalation patterns that do NOT include an explicit immediate deadline: unpaid invoices, repeated follow-ups, collections threats, competitor mentions, credential leaks, or churn signals described without a same-day time constraint. This includes cases where the sender's tone is calm or minimizing but the underlying fact is serious.\r\n- Use \"Normal\" when no real signal is present, regardless of keywords like \"urgent\" or \"ASAP\" used without substance, or importance tags set by the sender.\r\n\r\nWhen a business risk or escalation signal is present but no explicit same-day deadline is stated, default to \"High\", not \"Urgent\".\r\n\r\nReturn ONLY the raw JSON object below. Never wrap it in markdown code blocks or backticks.\r\n\r\n{\r\n  \"Priority\": \"Urgent\" | \"High\" | \"Normal\",\r\n  \"EscalationRisk\": \"High\" | \"Medium\" | \"Low\",\r\n  \"Reason\": \"one short sentence explaining the priority and risk, referencing the specific signal detected\",\r\n  \"SignalCategory\": \"Business risk\" | \"Time urgency\" | \"Security\" | \"Escalation pattern\" | \"None\"\r\n}"
+                    },
+                    {
+                        "role": "user",
+                        "content": "{{2.subject}}\r\n\r\n{{ifempty(2.fullTextBody; 2.snippet)}}"
+                    }
+                ],
+                "safe_prompt": false,
+                "temperature": "0",
+                "response_format": {
+                    "type": "text"
+                }
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 150
+                },
+                "restore": {
+                    "expect": {
+                        "model": {
+                            "mode": "chose",
+                            "label": "mistral-medium-latest"
+                        },
+                        "messages": {
+                            "mode": "chose",
+                            "items": [
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "System"
+                                    }
+                                },
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "User"
+                                    }
+                                }
+                            ]
+                        },
+                        "safe_prompt": {
+                            "mode": "chose"
+                        },
+                        "tool_choice": {
+                            "mode": "chose",
+                            "label": "Empty"
+                        },
+                        "response_format": {
+                            "nested": {
+                                "type": {
+                                    "mode": "chose",
+                                    "label": "Text"
+                                }
+                            }
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "mistral-ai"
+                            },
+                            "label": "My Mistral connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:mistral-ai",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "model",
+                        "type": "select",
+                        "label": "Model",
+                        "required": true
+                    },
+                    {
+                        "name": "messages",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "role",
+                                    "type": "select",
+                                    "label": "Role",
+                                    "options": [
+                                        {
+                                            "label": "User",
+                                            "value": "user"
+                                        },
+                                        {
+                                            "label": "System",
+                                            "value": "system"
+                                        },
+                                        {
+                                            "label": "Assistant",
+                                            "value": "assistant"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "content",
+                                    "type": "text",
+                                    "label": "Content"
+                                }
+                            ],
+                            "type": "collection"
+                        },
+                        "type": "array",
+                        "label": "Messages",
+                        "required": true
+                    },
+                    {
+                        "name": "temperature",
+                        "type": "number",
+                        "label": "Temperature"
+                    },
+                    {
+                        "name": "top_p",
+                        "type": "number",
+                        "label": "Top P"
+                    },
+                    {
+                        "name": "max_tokens",
+                        "type": "integer",
+                        "label": "Max Tokens",
+                        "validate": {
+                            "min": 0
+                        }
+                    },
+                    {
+                        "name": "safe_prompt",
+                        "type": "boolean",
+                        "label": "Safe Mode"
+                    },
+                    {
+                        "name": "random_seed",
+                        "type": "integer",
+                        "label": "Random Seed"
+                    },
+                    {
+                        "name": "stop",
+                        "type": "text",
+                        "label": "Stop"
+                    },
+                    {
+                        "name": "response_format",
+                        "spec": [
+                            {
+                                "name": "type",
+                                "type": "select",
+                                "label": "Type",
+                                "validate": {
+                                    "enum": [
+                                        "text",
+                                        "json_object"
+                                    ]
+                                }
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Response Format"
+                    },
+                    {
+                        "name": "tools",
+                        "type": "any",
+                        "label": "Tools"
+                    },
+                    {
+                        "name": "tool_choice",
+                        "type": "select",
+                        "label": "Tool Choice",
+                        "validate": {
+                            "enum": [
+                                "auto",
+                                "none",
+                                "any"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": 4,
+            "module": "json:ParseJSON",
+            "version": 1,
+            "parameters": {
+                "type": ""
+            },
+            "mapper": {
+                "json": "{{3.choices[].message.content}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 150
+                },
+                "restore": {
+                    "parameters": {
+                        "type": {
+                            "label": "Choose a data structure"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "type",
+                        "type": "udt",
+                        "label": "Data structure"
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "json",
+                        "type": "text",
+                        "label": "JSON string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 5,
+            "module": "builtin:BasicRouter",
+            "version": 1,
+            "mapper": null,
+            "metadata": {
+                "designer": {
+                    "x": 900,
+                    "y": 150
+                }
+            },
+            "routes": [
+                {
+                    "flow": [
+                        {
+                            "id": 6,
+                            "module": "slack:CreateMessage",
+                            "version": 4,
+                            "parameters": {
+                                "__IMTCONN__": null
+                            },
+                            "filter": {
+                                "name": "Urgent priority only",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{4.Priority}}",
+                                            "b": "Urgent",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "text": "────────────────────\nNew priority email — Subject: {{2.subject}}| :red_circle: Priority: *{{4.Priority}}* Reason: {{4.Reason}}\r\n\r\nOriginal email from {{2.fromName}}:\r\n{{ifempty(2.fullTextBody; 2.snippet)}}",
+                                "parse": false,
+                                "mrkdwn": true,
+                                "channel": "YOUR_SLACK_CHANNEL_ID",
+                                "channelType": "public",
+                                "channelWType": "list"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1200,
+                                    "y": 0
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "parse": {
+                                            "mode": "chose"
+                                        },
+                                        "mrkdwn": {
+                                            "mode": "chose"
+                                        },
+                                        "channel": {
+                                            "mode": "chose",
+                                            "label": "support-alerts"
+                                        },
+                                        "link_names": {
+                                            "mode": "chose"
+                                        },
+                                        "channelType": {
+                                            "label": "Public channel"
+                                        },
+                                        "channelWType": {
+                                            "label": "Select from the list"
+                                        },
+                                        "unfurl_links": {
+                                            "mode": "chose"
+                                        },
+                                        "unfurl_media": {
+                                            "mode": "chose"
+                                        },
+                                        "reply_broadcast": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "slack2"
+                                            },
+                                            "label": "My connection"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:slack2,slack3",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "channelWType",
+                                        "type": "select",
+                                        "label": "Enter a channel ID or name",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "manualy",
+                                                "list"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "text",
+                                        "type": "text",
+                                        "label": "Text"
+                                    },
+                                    {
+                                        "name": "blocks",
+                                        "type": "text",
+                                        "label": "Blocks"
+                                    },
+                                    {
+                                        "name": "thread_ts",
+                                        "type": "text",
+                                        "label": "Thread message ID (time stamp)"
+                                    },
+                                    {
+                                        "name": "reply_broadcast",
+                                        "type": "boolean",
+                                        "label": "Reply broadcast"
+                                    },
+                                    {
+                                        "name": "link_names",
+                                        "type": "boolean",
+                                        "label": "Link names"
+                                    },
+                                    {
+                                        "name": "parse",
+                                        "type": "boolean",
+                                        "label": "Parse message text"
+                                    },
+                                    {
+                                        "name": "mrkdwn",
+                                        "type": "boolean",
+                                        "label": "Use markdown"
+                                    },
+                                    {
+                                        "name": "unfurl_links",
+                                        "type": "boolean",
+                                        "label": "Unfurl primarily text-based content"
+                                    },
+                                    {
+                                        "name": "unfurl_media",
+                                        "type": "boolean",
+                                        "label": "Unfurl media content"
+                                    },
+                                    {
+                                        "name": "icon_emoji",
+                                        "type": "text",
+                                        "label": "Icon emoji"
+                                    },
+                                    {
+                                        "name": "icon_url",
+                                        "type": "url",
+                                        "label": "Icon url"
+                                    },
+                                    {
+                                        "name": "username",
+                                        "type": "text",
+                                        "label": "User name"
+                                    },
+                                    {
+                                        "name": "channelType",
+                                        "type": "select",
+                                        "label": "Channel type",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "public",
+                                                "private",
+                                                "im",
+                                                "mpim"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "channel",
+                                        "type": "select",
+                                        "label": "Public channel",
+                                        "required": true
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "flow": [
+                        {
+                            "id": 9,
+                            "module": "notion:createDataSourceItem",
+                            "version": 1,
+                            "parameters": {
+                                "__IMTCONN__": null
+                            },
+                            "mapper": {
+                                "fields": {
+                                    "AIWi": "{{4.Reason}}",
+                                    "FSCo": "{{4.SignalCategory}}",
+                                    "I~IO": "{{2.fromName}}",
+                                    "Tlsi": "{{4.Priority}}",
+                                    "TmxB": "{{4.EscalationRisk}}",
+                                    "mqdv": "{{ifempty(2.fullTextBody; 2.snippet)}}",
+                                    "title": "{{2.subject}}",
+                                    "_l%3Fm": {
+                                        "start": "{{2.internalDate}}",
+                                        "includeTime": false
+                                    }
+                                },
+                                "select": "list",
+                                "data_source": "YOUR_NOTION_DATABASE_ID"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1200,
+                                    "y": 300
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "fields": {
+                                            "nested": {
+                                                "FSCo": {
+                                                    "mode": "edit"
+                                                },
+                                                "Tlsi": {
+                                                    "mode": "edit"
+                                                },
+                                                "TmxB": {
+                                                    "mode": "edit"
+                                                },
+                                                "_l%3Fm": {
+                                                    "nested": {
+                                                        "includeTime": {
+                                                            "mode": "chose",
+                                                            "label": "No"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "select": {
+                                            "label": "Specific Fields of Data Source"
+                                        },
+                                        "data_source": {
+                                            "nested": [
+                                                {
+                                                    "name": "fields",
+                                                    "spec": [
+                                                        {
+                                                            "name": "title",
+                                                            "type": "text",
+                                                            "label": "Subject",
+                                                            "metadata": {
+                                                                "type": "title"
+                                                            },
+                                                            "required": true
+                                                        },
+                                                        {
+                                                            "name": "AIWi",
+                                                            "type": "text",
+                                                            "label": "Reason",
+                                                            "metadata": {
+                                                                "type": "rich_text"
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "FSCo",
+                                                            "type": "select",
+                                                            "label": "Signal Category",
+                                                            "options": [
+                                                                {
+                                                                    "label": "None",
+                                                                    "value": "None"
+                                                                },
+                                                                {
+                                                                    "label": "Escalation pattern",
+                                                                    "value": "Escalation pattern"
+                                                                },
+                                                                {
+                                                                    "label": "Security",
+                                                                    "value": "Security"
+                                                                },
+                                                                {
+                                                                    "label": "Time urgency",
+                                                                    "value": "Time urgency"
+                                                                },
+                                                                {
+                                                                    "label": "Business risk",
+                                                                    "value": "Business risk"
+                                                                }
+                                                            ],
+                                                            "metadata": {
+                                                                "type": "select"
+                                                            },
+                                                            "validate": false
+                                                        },
+                                                        {
+                                                            "name": "I~IO",
+                                                            "type": "text",
+                                                            "label": "Sender",
+                                                            "metadata": {
+                                                                "type": "rich_text"
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "Tlsi",
+                                                            "type": "select",
+                                                            "label": "Priority",
+                                                            "options": [
+                                                                {
+                                                                    "label": "Normal",
+                                                                    "value": "Normal"
+                                                                },
+                                                                {
+                                                                    "label": "High",
+                                                                    "value": "High"
+                                                                },
+                                                                {
+                                                                    "label": "Urgent",
+                                                                    "value": "Urgent"
+                                                                }
+                                                            ],
+                                                            "metadata": {
+                                                                "type": "select"
+                                                            },
+                                                            "validate": false
+                                                        },
+                                                        {
+                                                            "name": "TmxB",
+                                                            "type": "select",
+                                                            "label": "Escalation Risk",
+                                                            "options": [
+                                                                {
+                                                                    "label": "Medium",
+                                                                    "value": "Medium"
+                                                                },
+                                                                {
+                                                                    "label": "Low",
+                                                                    "value": "Low"
+                                                                },
+                                                                {
+                                                                    "label": "High",
+                                                                    "value": "High"
+                                                                }
+                                                            ],
+                                                            "metadata": {
+                                                                "type": "select"
+                                                            },
+                                                            "validate": false
+                                                        },
+                                                        {
+                                                            "name": "_l%3Fm",
+                                                            "spec": [
+                                                                {
+                                                                    "name": "start",
+                                                                    "type": "date",
+                                                                    "label": "Start Time"
+                                                                },
+                                                                {
+                                                                    "help": "Optional. Use only when entering a date range.",
+                                                                    "name": "end",
+                                                                    "type": "date",
+                                                                    "label": "End Time"
+                                                                },
+                                                                {
+                                                                    "name": "includeTime",
+                                                                    "type": "select",
+                                                                    "label": "Include Time",
+                                                                    "options": [
+                                                                        {
+                                                                            "label": "Yes",
+                                                                            "value": true
+                                                                        },
+                                                                        {
+                                                                            "label": "No",
+                                                                            "value": false,
+                                                                            "default": true
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ],
+                                                            "type": "collection",
+                                                            "label": "Date"
+                                                        },
+                                                        {
+                                                            "name": "mqdv",
+                                                            "type": "text",
+                                                            "label": "Original Email",
+                                                            "metadata": {
+                                                                "type": "rich_text"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "type": "collection",
+                                                    "label": "Fields"
+                                                }
+                                            ],
+                                            "rpcSearch": {
+                                                "label": "Support Email Escalation Log",
+                                                "value": "YOUR_NOTION_DATABASE_ID"
+                                            }
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "notion2"
+                                            },
+                                            "label": "My connection"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:notion2,notion3",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "select",
+                                        "type": "select",
+                                        "label": "Input method",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "map",
+                                                "list"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "data_source",
+                                        "type": "text",
+                                        "label": "Data Source ID",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "fields",
+                                        "spec": [
+                                            {
+                                                "name": "title",
+                                                "type": "text",
+                                                "label": "Subject",
+                                                "metadata": {
+                                                    "type": "title"
+                                                },
+                                                "required": true
+                                            },
+                                            {
+                                                "name": "AIWi",
+                                                "type": "text",
+                                                "label": "Reason",
+                                                "metadata": {
+                                                    "type": "rich_text"
+                                                }
+                                            },
+                                            {
+                                                "name": "FSCo",
+                                                "type": "select",
+                                                "label": "Signal Category",
+                                                "metadata": {
+                                                    "type": "select"
+                                                }
+                                            },
+                                            {
+                                                "name": "I~IO",
+                                                "type": "text",
+                                                "label": "Sender",
+                                                "metadata": {
+                                                    "type": "rich_text"
+                                                }
+                                            },
+                                            {
+                                                "name": "Tlsi",
+                                                "type": "select",
+                                                "label": "Priority",
+                                                "metadata": {
+                                                    "type": "select"
+                                                }
+                                            },
+                                            {
+                                                "name": "TmxB",
+                                                "type": "select",
+                                                "label": "Escalation Risk",
+                                                "metadata": {
+                                                    "type": "select"
+                                                }
+                                            },
+                                            {
+                                                "name": "_l%3Fm",
+                                                "spec": [
+                                                    {
+                                                        "name": "start",
+                                                        "type": "date",
+                                                        "label": "Start Time"
+                                                    },
+                                                    {
+                                                        "name": "end",
+                                                        "type": "date",
+                                                        "label": "End Time"
+                                                    },
+                                                    {
+                                                        "name": "includeTime",
+                                                        "type": "select",
+                                                        "label": "Include Time",
+                                                        "validate": {
+                                                            "enum": [
+                                                                true,
+                                                                false
+                                                            ]
+                                                        }
+                                                    }
+                                                ],
+                                                "type": "collection",
+                                                "label": "Date"
+                                            },
+                                            {
+                                                "name": "mqdv",
+                                                "type": "text",
+                                                "label": "Original Email",
+                                                "metadata": {
+                                                    "type": "rich_text"
+                                                }
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Fields"
+                                    }
+                                ],
+                                "interface": [
+                                    {
+                                        "name": "object",
+                                        "type": "text",
+                                        "label": "Object"
+                                    },
+                                    {
+                                        "name": "id",
+                                        "type": "text",
+                                        "label": "Database Item ID"
+                                    },
+                                    {
+                                        "name": "created_time",
+                                        "type": "date",
+                                        "label": "Created Time"
+                                    },
+                                    {
+                                        "name": "last_edited_time",
+                                        "type": "date",
+                                        "label": "Last Edited Time"
+                                    },
+                                    {
+                                        "name": "in_trash",
+                                        "type": "boolean",
+                                        "label": "In trash"
+                                    },
+                                    {
+                                        "name": "public_url",
+                                        "type": "text",
+                                        "label": "Public URL"
+                                    },
+                                    {
+                                        "name": "request_id",
+                                        "type": "text",
+                                        "label": "Request ID"
+                                    },
+                                    {
+                                        "name": "created_by",
+                                        "spec": [
+                                            {
+                                                "name": "object",
+                                                "type": "text",
+                                                "label": "Object"
+                                            },
+                                            {
+                                                "name": "id",
+                                                "type": "uuid",
+                                                "label": "ID"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Created by"
+                                    },
+                                    {
+                                        "name": "last_edited_by",
+                                        "spec": [
+                                            {
+                                                "name": "object",
+                                                "type": "text",
+                                                "label": "Object"
+                                            },
+                                            {
+                                                "name": "id",
+                                                "type": "uuid",
+                                                "label": "ID"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Last Edited by"
+                                    },
+                                    {
+                                        "name": "icon",
+                                        "spec": [
+                                            {
+                                                "name": "type",
+                                                "type": "text",
+                                                "label": "Type"
+                                            },
+                                            {
+                                                "name": "emoji",
+                                                "type": "text",
+                                                "label": "Emoji"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Icon"
+                                    },
+                                    {
+                                        "name": "cover",
+                                        "spec": [
+                                            {
+                                                "name": "type",
+                                                "type": "text",
+                                                "label": "Type"
+                                            },
+                                            {
+                                                "name": "external",
+                                                "spec": [
+                                                    {
+                                                        "name": "url",
+                                                        "type": "text",
+                                                        "label": "URL"
+                                                    }
+                                                ],
+                                                "type": "collection",
+                                                "label": "External"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Cover"
+                                    },
+                                    {
+                                        "name": "url",
+                                        "type": "text",
+                                        "label": "URL"
+                                    },
+                                    {
+                                        "name": "parent",
+                                        "spec": [
+                                            {
+                                                "name": "type",
+                                                "type": "text",
+                                                "label": "Type"
+                                            },
+                                            {
+                                                "name": "workspace",
+                                                "type": "boolean",
+                                                "label": "Workspace"
+                                            },
+                                            {
+                                                "name": "page_id",
+                                                "type": "text",
+                                                "label": "Page ID"
+                                            },
+                                            {
+                                                "name": "database_id",
+                                                "type": "text",
+                                                "label": "Database ID"
+                                            },
+                                            {
+                                                "name": "data_source_id",
+                                                "type": "text",
+                                                "label": "Data Source ID"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Parent"
+                                    },
+                                    {
+                                        "name": "archived",
+                                        "type": "boolean",
+                                        "label": "Archived"
+                                    },
+                                    {
+                                        "name": "properties",
+                                        "spec": {
+                                            "spec": [
+                                                {
+                                                    "name": "id",
+                                                    "type": "text",
+                                                    "label": "ID"
+                                                },
+                                                {
+                                                    "name": "type",
+                                                    "type": "text",
+                                                    "label": "Type"
+                                                },
+                                                {
+                                                    "name": "people",
+                                                    "spec": {
+                                                        "spec": [
+                                                            {
+                                                                "name": "object",
+                                                                "type": "text",
+                                                                "label": "Object"
+                                                            },
+                                                            {
+                                                                "name": "id",
+                                                                "type": "text",
+                                                                "label": "ID"
+                                                            },
+                                                            {
+                                                                "name": "name",
+                                                                "type": "text",
+                                                                "label": "Name"
+                                                            },
+                                                            {
+                                                                "name": "avatar_url",
+                                                                "type": "text",
+                                                                "label": "Avatar Url"
+                                                            },
+                                                            {
+                                                                "name": "type",
+                                                                "type": "text",
+                                                                "label": "Type"
+                                                            },
+                                                            {
+                                                                "name": "person",
+                                                                "spec": [
+                                                                    {
+                                                                        "name": "email",
+                                                                        "type": "text",
+                                                                        "label": "Email"
+                                                                    }
+                                                                ],
+                                                                "type": "collection",
+                                                                "label": "Person"
+                                                            }
+                                                        ],
+                                                        "type": "collection"
+                                                    },
+                                                    "type": "array",
+                                                    "label": "People"
+                                                },
+                                                {
+                                                    "name": "url",
+                                                    "type": "text",
+                                                    "label": "URL"
+                                                },
+                                                {
+                                                    "name": "text",
+                                                    "spec": {
+                                                        "spec": [
+                                                            {
+                                                                "name": "type",
+                                                                "type": "text",
+                                                                "label": "Type"
+                                                            },
+                                                            {
+                                                                "name": "text",
+                                                                "spec": [
+                                                                    {
+                                                                        "name": "content",
+                                                                        "type": "text",
+                                                                        "label": "Content"
+                                                                    },
+                                                                    {
+                                                                        "name": "link",
+                                                                        "type": "text",
+                                                                        "label": "Link"
+                                                                    }
+                                                                ],
+                                                                "type": "collection",
+                                                                "label": "Text"
+                                                            },
+                                                            {
+                                                                "name": "annotations",
+                                                                "spec": [
+                                                                    {
+                                                                        "name": "bold",
+                                                                        "type": "boolean",
+                                                                        "label": "Bold"
+                                                                    },
+                                                                    {
+                                                                        "name": "italic",
+                                                                        "type": "boolean",
+                                                                        "label": "Italic"
+                                                                    },
+                                                                    {
+                                                                        "name": "strikethrough",
+                                                                        "type": "boolean",
+                                                                        "label": "Strikethrough"
+                                                                    },
+                                                                    {
+                                                                        "name": "underline",
+                                                                        "type": "boolean",
+                                                                        "label": "Underline"
+                                                                    },
+                                                                    {
+                                                                        "name": "code",
+                                                                        "type": "boolean",
+                                                                        "label": "Code"
+                                                                    },
+                                                                    {
+                                                                        "name": "color",
+                                                                        "type": "text",
+                                                                        "label": "Color"
+                                                                    }
+                                                                ],
+                                                                "type": "collection",
+                                                                "label": "Annotations"
+                                                            },
+                                                            {
+                                                                "name": "plain_text",
+                                                                "type": "text",
+                                                                "label": "Plain Text"
+                                                            },
+                                                            {
+                                                                "name": "href",
+                                                                "type": "text",
+                                                                "label": "Href"
+                                                            }
+                                                        ],
+                                                        "type": "collection"
+                                                    },
+                                                    "type": "array",
+                                                    "label": "Text"
+                                                },
+                                                {
+                                                    "name": "select",
+                                                    "spec": [
+                                                        {
+                                                            "name": "id",
+                                                            "type": "text",
+                                                            "label": "ID"
+                                                        },
+                                                        {
+                                                            "name": "name",
+                                                            "type": "text",
+                                                            "label": "Name"
+                                                        },
+                                                        {
+                                                            "name": "color",
+                                                            "type": "text",
+                                                            "label": "Color"
+                                                        }
+                                                    ],
+                                                    "type": "collection",
+                                                    "label": "Select"
+                                                },
+                                                {
+                                                    "name": "email",
+                                                    "type": "text",
+                                                    "label": "Email"
+                                                },
+                                                {
+                                                    "name": "phone_number",
+                                                    "type": "text",
+                                                    "label": "Phone Number"
+                                                },
+                                                {
+                                                    "name": "multi_select",
+                                                    "spec": {
+                                                        "spec": [
+                                                            {
+                                                                "name": "id",
+                                                                "type": "text",
+                                                                "label": "ID"
+                                                            },
+                                                            {
+                                                                "name": "name",
+                                                                "type": "text",
+                                                                "label": "Name"
+                                                            },
+                                                            {
+                                                                "name": "color",
+                                                                "type": "text",
+                                                                "label": "Color"
+                                                            }
+                                                        ],
+                                                        "type": "collection"
+                                                    },
+                                                    "type": "array",
+                                                    "label": "Multi Select"
+                                                },
+                                                {
+                                                    "name": "date",
+                                                    "spec": [
+                                                        {
+                                                            "name": "start",
+                                                            "type": "text",
+                                                            "label": "Start"
+                                                        },
+                                                        {
+                                                            "name": "end",
+                                                            "type": "text",
+                                                            "label": "End"
+                                                        }
+                                                    ],
+                                                    "type": "collection",
+                                                    "label": "Date"
+                                                },
+                                                {
+                                                    "name": "checkbox",
+                                                    "type": "boolean",
+                                                    "label": "Checkbox"
+                                                },
+                                                {
+                                                    "name": "number",
+                                                    "type": "number",
+                                                    "label": "Number"
+                                                },
+                                                {
+                                                    "name": "files",
+                                                    "spec": {
+                                                        "spec": [
+                                                            {
+                                                                "name": "name",
+                                                                "type": "text",
+                                                                "label": "Name"
+                                                            }
+                                                        ],
+                                                        "type": "collection"
+                                                    },
+                                                    "type": "array",
+                                                    "label": "Files"
+                                                },
+                                                {
+                                                    "name": "title",
+                                                    "spec": {
+                                                        "spec": [
+                                                            {
+                                                                "name": "type",
+                                                                "type": "text",
+                                                                "label": "Type"
+                                                            },
+                                                            {
+                                                                "name": "text",
+                                                                "spec": [
+                                                                    {
+                                                                        "name": "content",
+                                                                        "type": "text",
+                                                                        "label": "Content"
+                                                                    },
+                                                                    {
+                                                                        "name": "link",
+                                                                        "type": "text",
+                                                                        "label": "Link"
+                                                                    }
+                                                                ],
+                                                                "type": "collection",
+                                                                "label": "Text"
+                                                            },
+                                                            {
+                                                                "name": "annotations",
+                                                                "spec": [
+                                                                    {
+                                                                        "name": "bold",
+                                                                        "type": "boolean",
+                                                                        "label": "Bold"
+                                                                    },
+                                                                    {
+                                                                        "name": "italic",
+                                                                        "type": "boolean",
+                                                                        "label": "Italic"
+                                                                    },
+                                                                    {
+                                                                        "name": "strikethrough",
+                                                                        "type": "boolean",
+                                                                        "label": "Strikethrough"
+                                                                    },
+                                                                    {
+                                                                        "name": "underline",
+                                                                        "type": "boolean",
+                                                                        "label": "Underline"
+                                                                    },
+                                                                    {
+                                                                        "name": "code",
+                                                                        "type": "boolean",
+                                                                        "label": "Code"
+                                                                    },
+                                                                    {
+                                                                        "name": "color",
+                                                                        "type": "text",
+                                                                        "label": "Color"
+                                                                    }
+                                                                ],
+                                                                "type": "collection",
+                                                                "label": "Annotations"
+                                                            },
+                                                            {
+                                                                "name": "plain_text",
+                                                                "type": "text",
+                                                                "label": "Plain Text"
+                                                            },
+                                                            {
+                                                                "name": "href",
+                                                                "type": "text",
+                                                                "label": "Href"
+                                                            }
+                                                        ],
+                                                        "type": "collection"
+                                                    },
+                                                    "type": "array",
+                                                    "label": "Title"
+                                                },
+                                                {
+                                                    "name": "last_edited_time",
+                                                    "time": true,
+                                                    "type": "date",
+                                                    "label": "Last Edited Time"
+                                                },
+                                                {
+                                                    "name": "created_time",
+                                                    "time": true,
+                                                    "type": "date",
+                                                    "label": "Created Time"
+                                                },
+                                                {
+                                                    "name": "last_edited_by",
+                                                    "spec": [
+                                                        {
+                                                            "name": "object",
+                                                            "type": "text",
+                                                            "label": "Object"
+                                                        },
+                                                        {
+                                                            "name": "id",
+                                                            "type": "text",
+                                                            "label": "ID"
+                                                        },
+                                                        {
+                                                            "name": "name",
+                                                            "type": "text",
+                                                            "label": "Name"
+                                                        },
+                                                        {
+                                                            "name": "avatar_url",
+                                                            "type": "text",
+                                                            "label": "Avatar Url"
+                                                        },
+                                                        {
+                                                            "name": "type",
+                                                            "type": "text",
+                                                            "label": "Type"
+                                                        },
+                                                        {
+                                                            "name": "person",
+                                                            "spec": [
+                                                                {
+                                                                    "name": "email",
+                                                                    "type": "text",
+                                                                    "label": "Email"
+                                                                }
+                                                            ],
+                                                            "type": "collection",
+                                                            "label": "Person"
+                                                        }
+                                                    ],
+                                                    "type": "collection",
+                                                    "label": "Last Edited By"
+                                                },
+                                                {
+                                                    "name": "created_by",
+                                                    "spec": [
+                                                        {
+                                                            "name": "object",
+                                                            "type": "text",
+                                                            "label": "Object"
+                                                        },
+                                                        {
+                                                            "name": "id",
+                                                            "type": "text",
+                                                            "label": "ID"
+                                                        },
+                                                        {
+                                                            "name": "name",
+                                                            "type": "text",
+                                                            "label": "Name"
+                                                        },
+                                                        {
+                                                            "name": "avatar_url",
+                                                            "type": "text",
+                                                            "label": "Avatar Url"
+                                                        },
+                                                        {
+                                                            "name": "type",
+                                                            "type": "text",
+                                                            "label": "Type"
+                                                        },
+                                                        {
+                                                            "name": "person",
+                                                            "spec": [
+                                                                {
+                                                                    "name": "email",
+                                                                    "type": "text",
+                                                                    "label": "Email"
+                                                                }
+                                                            ],
+                                                            "type": "collection",
+                                                            "label": "Person"
+                                                        }
+                                                    ],
+                                                    "type": "collection",
+                                                    "label": "Created By"
+                                                },
+                                                {
+                                                    "name": "formula",
+                                                    "spec": [
+                                                        {
+                                                            "name": "type",
+                                                            "type": "text",
+                                                            "label": "Type"
+                                                        },
+                                                        {
+                                                            "name": "string",
+                                                            "type": "text",
+                                                            "label": "String"
+                                                        }
+                                                    ],
+                                                    "type": "collection",
+                                                    "label": "Formula"
+                                                },
+                                                {
+                                                    "name": "relation",
+                                                    "spec": {
+                                                        "spec": [
+                                                            {
+                                                                "name": "id",
+                                                                "type": "text",
+                                                                "label": "ID"
+                                                            }
+                                                        ],
+                                                        "type": "collection"
+                                                    },
+                                                    "type": "array",
+                                                    "label": "Relation"
+                                                },
+                                                {
+                                                    "name": "label",
+                                                    "type": "text",
+                                                    "label": "Label"
+                                                }
+                                            ],
+                                            "type": "collection"
+                                        },
+                                        "type": "array",
+                                        "label": "Properties"
+                                    },
+                                    {
+                                        "name": "properties_value",
+                                        "spec": [
+                                            {
+                                                "name": "Reason",
+                                                "spec": [
+                                                    {
+                                                        "name": "type",
+                                                        "type": "text",
+                                                        "label": "Type"
+                                                    },
+                                                    {
+                                                        "name": "text",
+                                                        "spec": [
+                                                            {
+                                                                "name": "content",
+                                                                "type": "text",
+                                                                "label": "Content"
+                                                            },
+                                                            {
+                                                                "name": "link",
+                                                                "type": "text",
+                                                                "label": "Link"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Text"
+                                                    },
+                                                    {
+                                                        "name": "annotations",
+                                                        "spec": [
+                                                            {
+                                                                "name": "bold",
+                                                                "type": "boolean",
+                                                                "label": "Bold"
+                                                            },
+                                                            {
+                                                                "name": "italic",
+                                                                "type": "boolean",
+                                                                "label": "Italic"
+                                                            },
+                                                            {
+                                                                "name": "strikethrough",
+                                                                "type": "boolean",
+                                                                "label": "Strikethrough"
+                                                            },
+                                                            {
+                                                                "name": "underline",
+                                                                "type": "boolean",
+                                                                "label": "Underline"
+                                                            },
+                                                            {
+                                                                "name": "code",
+                                                                "type": "boolean",
+                                                                "label": "Code"
+                                                            },
+                                                            {
+                                                                "name": "color",
+                                                                "type": "text",
+                                                                "label": "Color"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Annotations"
+                                                    },
+                                                    {
+                                                        "name": "plain_text",
+                                                        "type": "text",
+                                                        "label": "Plain Text"
+                                                    },
+                                                    {
+                                                        "name": "href",
+                                                        "type": "text",
+                                                        "label": "Href"
+                                                    }
+                                                ],
+                                                "type": "array",
+                                                "label": "Reason"
+                                            },
+                                            {
+                                                "name": "Signal Category",
+                                                "spec": [
+                                                    {
+                                                        "name": "id",
+                                                        "type": "text",
+                                                        "label": "ID"
+                                                    },
+                                                    {
+                                                        "name": "name",
+                                                        "type": "text",
+                                                        "label": "Name"
+                                                    },
+                                                    {
+                                                        "name": "color",
+                                                        "type": "text",
+                                                        "label": "Color"
+                                                    }
+                                                ],
+                                                "type": "collection",
+                                                "label": "Signal Category"
+                                            },
+                                            {
+                                                "name": "Sender",
+                                                "spec": [
+                                                    {
+                                                        "name": "type",
+                                                        "type": "text",
+                                                        "label": "Type"
+                                                    },
+                                                    {
+                                                        "name": "text",
+                                                        "spec": [
+                                                            {
+                                                                "name": "content",
+                                                                "type": "text",
+                                                                "label": "Content"
+                                                            },
+                                                            {
+                                                                "name": "link",
+                                                                "type": "text",
+                                                                "label": "Link"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Text"
+                                                    },
+                                                    {
+                                                        "name": "annotations",
+                                                        "spec": [
+                                                            {
+                                                                "name": "bold",
+                                                                "type": "boolean",
+                                                                "label": "Bold"
+                                                            },
+                                                            {
+                                                                "name": "italic",
+                                                                "type": "boolean",
+                                                                "label": "Italic"
+                                                            },
+                                                            {
+                                                                "name": "strikethrough",
+                                                                "type": "boolean",
+                                                                "label": "Strikethrough"
+                                                            },
+                                                            {
+                                                                "name": "underline",
+                                                                "type": "boolean",
+                                                                "label": "Underline"
+                                                            },
+                                                            {
+                                                                "name": "code",
+                                                                "type": "boolean",
+                                                                "label": "Code"
+                                                            },
+                                                            {
+                                                                "name": "color",
+                                                                "type": "text",
+                                                                "label": "Color"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Annotations"
+                                                    },
+                                                    {
+                                                        "name": "plain_text",
+                                                        "type": "text",
+                                                        "label": "Plain Text"
+                                                    },
+                                                    {
+                                                        "name": "href",
+                                                        "type": "text",
+                                                        "label": "Href"
+                                                    }
+                                                ],
+                                                "type": "array",
+                                                "label": "Sender"
+                                            },
+                                            {
+                                                "name": "Priority",
+                                                "spec": [
+                                                    {
+                                                        "name": "id",
+                                                        "type": "text",
+                                                        "label": "ID"
+                                                    },
+                                                    {
+                                                        "name": "name",
+                                                        "type": "text",
+                                                        "label": "Name"
+                                                    },
+                                                    {
+                                                        "name": "color",
+                                                        "type": "text",
+                                                        "label": "Color"
+                                                    }
+                                                ],
+                                                "type": "collection",
+                                                "label": "Priority"
+                                            },
+                                            {
+                                                "name": "Escalation Risk",
+                                                "spec": [
+                                                    {
+                                                        "name": "id",
+                                                        "type": "text",
+                                                        "label": "ID"
+                                                    },
+                                                    {
+                                                        "name": "name",
+                                                        "type": "text",
+                                                        "label": "Name"
+                                                    },
+                                                    {
+                                                        "name": "color",
+                                                        "type": "text",
+                                                        "label": "Color"
+                                                    }
+                                                ],
+                                                "type": "collection",
+                                                "label": "Escalation Risk"
+                                            },
+                                            {
+                                                "name": "Date",
+                                                "spec": [
+                                                    {
+                                                        "name": "start",
+                                                        "type": "date",
+                                                        "label": "Start"
+                                                    },
+                                                    {
+                                                        "name": "end",
+                                                        "type": "date",
+                                                        "label": "End"
+                                                    },
+                                                    {
+                                                        "name": "time_zone",
+                                                        "type": "text",
+                                                        "label": "Time Zone"
+                                                    }
+                                                ],
+                                                "type": "collection",
+                                                "label": "Date"
+                                            },
+                                            {
+                                                "name": "Original Email",
+                                                "spec": [
+                                                    {
+                                                        "name": "type",
+                                                        "type": "text",
+                                                        "label": "Type"
+                                                    },
+                                                    {
+                                                        "name": "text",
+                                                        "spec": [
+                                                            {
+                                                                "name": "content",
+                                                                "type": "text",
+                                                                "label": "Content"
+                                                            },
+                                                            {
+                                                                "name": "link",
+                                                                "type": "text",
+                                                                "label": "Link"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Text"
+                                                    },
+                                                    {
+                                                        "name": "annotations",
+                                                        "spec": [
+                                                            {
+                                                                "name": "bold",
+                                                                "type": "boolean",
+                                                                "label": "Bold"
+                                                            },
+                                                            {
+                                                                "name": "italic",
+                                                                "type": "boolean",
+                                                                "label": "Italic"
+                                                            },
+                                                            {
+                                                                "name": "strikethrough",
+                                                                "type": "boolean",
+                                                                "label": "Strikethrough"
+                                                            },
+                                                            {
+                                                                "name": "underline",
+                                                                "type": "boolean",
+                                                                "label": "Underline"
+                                                            },
+                                                            {
+                                                                "name": "code",
+                                                                "type": "boolean",
+                                                                "label": "Code"
+                                                            },
+                                                            {
+                                                                "name": "color",
+                                                                "type": "text",
+                                                                "label": "Color"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Annotations"
+                                                    },
+                                                    {
+                                                        "name": "plain_text",
+                                                        "type": "text",
+                                                        "label": "Plain Text"
+                                                    },
+                                                    {
+                                                        "name": "href",
+                                                        "type": "text",
+                                                        "label": "Href"
+                                                    }
+                                                ],
+                                                "type": "array",
+                                                "label": "Original Email"
+                                            },
+                                            {
+                                                "name": "Subject",
+                                                "spec": [
+                                                    {
+                                                        "name": "type",
+                                                        "type": "text",
+                                                        "label": "Type"
+                                                    },
+                                                    {
+                                                        "name": "text",
+                                                        "spec": [
+                                                            {
+                                                                "name": "content",
+                                                                "type": "text",
+                                                                "label": "Content"
+                                                            },
+                                                            {
+                                                                "name": "link",
+                                                                "type": "text",
+                                                                "label": "Link"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Text"
+                                                    },
+                                                    {
+                                                        "name": "annotations",
+                                                        "spec": [
+                                                            {
+                                                                "name": "bold",
+                                                                "type": "boolean",
+                                                                "label": "Bold"
+                                                            },
+                                                            {
+                                                                "name": "italic",
+                                                                "type": "boolean",
+                                                                "label": "Italic"
+                                                            },
+                                                            {
+                                                                "name": "strikethrough",
+                                                                "type": "boolean",
+                                                                "label": "Strikethrough"
+                                                            },
+                                                            {
+                                                                "name": "underline",
+                                                                "type": "boolean",
+                                                                "label": "Underline"
+                                                            },
+                                                            {
+                                                                "name": "code",
+                                                                "type": "boolean",
+                                                                "label": "Code"
+                                                            },
+                                                            {
+                                                                "name": "color",
+                                                                "type": "text",
+                                                                "label": "Color"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Annotations"
+                                                    },
+                                                    {
+                                                        "name": "plain_text",
+                                                        "type": "text",
+                                                        "label": "Plain Text"
+                                                    },
+                                                    {
+                                                        "name": "href",
+                                                        "type": "text",
+                                                        "label": "Href"
+                                                    }
+                                                ],
+                                                "type": "array",
+                                                "label": "Subject"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Properties Value"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu1.make.com",
+        "notes": []
+    }
+}
